@@ -28,6 +28,7 @@ data/external/
 .DS_Store
 .idea/
 .vscode/
+.cursor/
 .env
 .env.*
 !.env.example
