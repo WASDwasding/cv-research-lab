@@ -1,0 +1,33 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# 模型与日志
+*.pt
+*.pth
+*.onnx
+*.ckpt
+runs/
+wandb/
+lightning_logs/
+outputs/
+
+# 数据（只提交说明，不提交原图）
+data/raw/
+data/processed/
+data/external/
+*.zip
+*.tar
+*.tar.gz
+
+# 系统 / 编辑器
+.DS_Store
+.idea/
+.vscode/
+.env
+.env.*
+!.env.example
