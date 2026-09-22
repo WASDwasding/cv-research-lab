@@ -25,8 +25,8 @@
 | 数字冻结 | ❌ **2026-10-12** |
 | 3 档规则 | ✅ 2026-09-22，见 `experiments/label_protocol.md` |
 | 三条贡献主张 | ✅ 2026-09-22，见 `paper/contributions.md` |
-| 论文章节壳 | ✅ `paper/main.tex` 已有五节标题。`paper/shell.pdf` 还没生成 |
-| PyTorch 环境 | ❌ 最小训练还没跑完，`experiments/00_env_check.md` 没有验证准确率 |
+| 论文章节壳 | ✅ `paper/main.tex` 与 `paper/shell.pdf` |
+| PyTorch 环境 | ✅ 2026-09-22。CUDA 可用，合成 3 档验证准确率 0.6370。见 `experiments/00_env_check.md` |
 | 公开集基线 | ❌ 09-28 前要有多数类和微调 |
 
 ---
@@ -49,9 +49,10 @@
 
 1. 3 档规则写成文：每档 3 条可见特征，边界例 B1–B10，五步判定。文件是 `experiments/label_protocol.md`。  
 2. 三条贡献主张写成文：分级定义、对照（含先定位再分级）、何时失效。文件是 `paper/contributions.md`。  
-3. 论文壳有题名、摘要、关键词和五节标题，在 `paper/main.tex`。
+3. 论文壳有题名、摘要、关键词和五节标题。`python paper/build_shell.py` 导出 `paper/shell.pdf`。  
+4. 最小训练跑完。命令 `python src/env_check.py --epochs 2 --train-n 4000 --val-n 1000`。CUDA 可用，第 2 轮验证准确率 0.6370。过程在 `experiments/20260922_day1.md`。
 
-同一天还没过线：验证准确率没记进 `experiments/00_env_check.md`；`paper/shell.pdf` 没导出。
+这 0.6370 来自合成 3 档图，因为本机还没有 torchvision，CIFAR-10 没下下来。它只证明训练循环能结束，不进入论文主表。
 
 ---
 
@@ -60,4 +61,4 @@
 - 2026-09-15 组会：转向计算机视觉。工作题目为「产品损伤程度」。  
 - 2026-09-21 投稿档次定为正规 EI；本仓库启动。  
 - 2026-09-22 进度改为 31 天完整论文并投稿。原五个月里程碑、两月压缩版都不再执行。  
-- 2026-09-22 第 1 天完成规则和贡献主张，论文章节壳已放进 `paper/main.tex`。环境数字和 PDF 仍缺。
+- 2026-09-22 第 1 天补齐环境数字和论文壳 PDF。合成 3 档验证准确率 0.6370，见 `experiments/20260922_day1.md`。
