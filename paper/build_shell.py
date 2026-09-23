@@ -18,13 +18,13 @@ PAGE = (1240, 1754)
 MARGIN = 80
 
 BLOCKS = [
-    ("title", "Damage Severity Estimation from a Single Product Image"),
+    ("title", "Screen Damage Severity Estimation for Phones and Tablets"),
     ("meta", "论文壳  2026-09-22  第 1 天  cv-research-lab"),
     ("body", "Keywords: damage severity, ordinal classification, visual inspection"),
     ("head", "摘要 / Abstract"),
     ("body", "第 1 天只建壳。摘要以后写三档定义、对照结果、以及模型在哪里失效。本页不填任何实验数字。"),
     ("head", "1 引言 / Introduction"),
-    ("body", "任务：已知产品类别，给一张外观图一个有序档次：无 / 轻 / 中重。三条贡献主张："),
+    ("body", "任务：已知是手机或平板屏幕，给一张屏幕图一个有序档次：无 / 轻 / 中重。不评后盖和边框。三条贡献主张："),
     ("body", "1. 分级定义。无 / 轻 / 中重有书面可见特征和边界例，见 experiments/label_protocol.md。"),
     ("body", "2. 对照。同一划分上比较整图分类、有序损失、先定位再分级。负结果保留。"),
     ("body", "3. 何时失效。失败类型和真实拍摄小集上的掉点写进正文。不把贡献写成提出新网络。"),
