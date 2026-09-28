@@ -2,32 +2,73 @@
 
 \title{Screen Damage Severity Estimation for Phones and Tablets}
 \author{cv-research-lab}
-\date{2026-09-22}
+\date{2026-09-28}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Shell created on day 1. The abstract will later state the three-level definition, the comparison result, and where the model fails. This file does not contain measured numbers.
+Draft of 28 September 2026. The abstract will later state the three-level definition, the comparison result, and where the model fails. This file does not contain measured accuracy, F1, or ordinal error.
 \end{abstract}
 
-\noindent\textbf{Keywords:} damage severity, ordinal classification, visual inspection
+\noindent\textbf{Keywords:} screen damage, ordinal classification, visual inspection, smartphone
 
 \section{Introduction}
-The task is to assign one ordered grade, none / minor / severe, to a phone or tablet screen. The device type is already known. Covers, frames, and cameras are out of scope.
-The three claims are written in \texttt{paper/contributions.md}.
-They are: a written three-level definition, a comparison that includes locate-then-grade, and a statement of when the model fails.
+Used phones and tablets are priced by how badly the glass is marked. A short hairline scratch and a crack through the glass are not the same outcome for resale or for the factory line, and the difference is ordered: no mark is better than a light scratch, which is better than a crack or a shatter. Today a person makes that call by eye. Two looks at the same screen, or the same look under a different reflection, can change the grade. This paper studies only the front glass. The product type is already known. Covers, frames, and cameras are out of scope.
+
+Public screen data and the closest grading study do not answer that call. Detection sets assign a type to each mark --- crack, scratch, spot --- and return a box or a mask. They do not assign one ordered grade to the whole screen, and they do not score an error that skips a grade more heavily than an error that lands on a neighbor. A refurbishment study does grade phones, on four private severity classes and grades A--D, from 246 images of 115 phones. That set is not public, the grade rule is not the three-level rule used here, and the reported detection precision is not a result on our test split. Industrial surface benchmarks (steel strip, anomaly-detection collections, other factory surfaces) show that visual inspection is an established task. They are not phone or tablet glass, and their labels are defect types or normal-versus-abnormal, not none / minor / severe.
+
+The input here is one image of a phone or tablet screen. The output is one grade: none, minor, or severe. The grade of the image is the grade of its worst site. A crack, a shatter, a chip, light leakage, or a peeled layer is severe even when the mark is short. A scratch shorter than one fifth of the short side, which does not expose the layer under the glass and covers less than five percent of the image, stays minor. Wipeable oil and fingerprints are not damage. Reflection that disappears at another angle is not damage; if a model reads it as a scratch, that error is reported later as a failure, and the label is not changed to match the model.
+
+The paper makes three claims, and it does not claim a new network. First, the three grades are written down with visible tests and border examples, then applied to a public screen-glass set. Second, on one split of that set, a whole-image classifier, an ordinal loss, and a locate-then-grade pipeline are compared, including the case where locating the mark does not help. Third, the paper states when the grade fails: reflection read as a scratch, a short crack missed, background read as damage, and confusion between neighboring grades, plus a later set of real phone and tablet screens with agreement between two annotators. Accuracy, per-grade F1, and the ordinal errors are not in this draft. They enter the abstract only after the comparison table is frozen. The sections below fix the label rule, place the screen-defect literature against that rule, and leave the training procedure and the tables for the experiments that are still open.
+
+% 中文提纲，不进入投稿 PDF。
+% 二手手机和平板按屏幕伤情定价，无、轻、中重有顺序，现在靠人眼。公开检测集给的是裂纹、划痕这类框，不给整屏一档；翻新论文用私有四类严重度合成 A--D，数据不公开，规则也不是这三档。本文在已知是手机或平板屏幕的前提下，输出无、轻或中重，整图取最重一处。三条贡献是书面分级、同一划分上的对照（含先定位再分级）、以及何时失效。不提出新网络。准确率等待主表，不写进这一稿。
 
 \section{Related Work}
-Subsections still empty: surface defects, ordinal classification, condition assessment.
+\subsection{Surface defects}
+Screen inspection is usually posed as detection or segmentation of a defect type, not as an ordered grade of the whole glass.
+
+Han et al.\ release SSGD, 2504 workstation images of smartphone screen glass with 3914 boxes in seven types: crack, broken, spot, scratch, light-leakage, blot, and broken-membrane \cite{han2023ssgd}. The task is to place a box and a type name. The paper does not define none / minor / severe, and the public release does not contain a clean-screen class that matches our ``none'' grade. We use this set as the public training source and map each type through the written rule; we do not report their detector numbers as our accuracy.
+
+Zhang et al.\ segment three made defects on mobile-phone screens --- oil, scratch, and stain --- in 1200 industrial images, plus 20 clean images \cite{zhang2022fdsnet}. The output is a mask per type. Oil that can be wiped off is not damage under our rule, so this set is only a fallback if SSGD cannot be read, and its masks are not an ordered grade.
+
+Mohandas et al.\ detect scratches and cracks on phone screens and then compute a refurbishment grade \cite{mohandas2025grading}. Version 2 has 246 images from 115 phones. Four severity classes (light removable scratch, deeper scratch, hairline crack, major crack or shattered edge) are combined by a written table into grades A--D, taking the worst class, with an extra count threshold on the lightest scratches. That is the nearest public grading rule. The images are not released for this project, the four classes are not our three grades, and reflection already changes how the same mark is labeled. Their precision figures stay in their paper.
+
+The wider surface-inspection literature shows the same gap in a different material. Bergmann et al.\ define unsupervised anomaly detection on fifteen factory objects and textures \cite{bergmann2019mvtec}. Song and Yan describe a texture code for hot-rolled steel strip defects and the NEU collection that later detection papers train on \cite{song2013neu}. Tabernik et al.\ segment a small number of annotated defects on electrical commutators \cite{tabernik2020segmentation}. Each of these returns a defect region, a defect type, or an anomaly score. None of them states a three-level ordered grade for phone or tablet glass, and none of them is the data of this paper.
+
+What is missing, and what the comparison table has to supply, is a single public screen set, one split, and one ordered label, with a majority-class baseline beside the trained grades. Detector mean average precision on SSGD does not fill that cell.
+
+\subsection{Ordinal classification}
+Still empty.
+
+\subsection{Condition assessment}
+Still empty.
 
 \section{Method}
 \subsection{Label definition}
+The product type is known before the image is graded. The image shows the front glass of a phone or a tablet. The model does not decide the brand, and it does not grade the cover, the frame, or the camera. One image receives one grade. The grade is the worst site on that glass. Grades are ordered: none $<$ minor $<$ severe. Predicting minor as severe is an error of one step. Predicting none as severe is an error of two steps. Lengths are measured against the short side of the image, written $S$. Area is the fraction of the image covered by a region a person can circle around the mark. On SSGD every image is $1500\times 1000$, so $S=1000$ and $0.2S=200$ pixels. Scratch length is the long side of the box. Area is the box area divided by the image area.
+
+A screen is none only when three tests all hold. The glass is continuous: no scratch, crack, pit, or peeled patch. Nothing exposes the layer under the glass, and the glass is not bent. Isolated dust, if any, covers less than one percent of the image and does not form a line. Wipeable fingerprints, water marks, and oil films are none, provided the glass underneath is intact. A bright line that disappears when the angle changes is reflection, not a mark; the label stays none, and a model that calls it a scratch is counted later as a failure.
+
+A screen is minor when a mark is present and three further tests all hold. The mark is shallow: a thin scratch, light wear, or a shallow pit, with no exposed layer and no crack. The longest scratch is shorter than $0.2S$, and the marked area is under five percent of the image. The mark does not cut the part in two and does not visibly bend it. Two shallow scratches that each stay under those limits, and that together stay under five percent, remain minor, because the grade follows the worst site and neither site has crossed into severe.
+
+A screen is severe when any one of the following holds. Some site exposes the under-layer, cracks, penetrates, peels, or is visibly bent. The longest scratch is at least $0.2S$, or the marked area is at least five percent. Among several marks, at least one site already meets either of those tests. A crack is severe even at $0.05S$. A missing corner, a shatter, or a web of cracks is severe. Light leakage, a peeled protective film, or an exposed polarizer is severe, because the layer is already open. ``Medium'' and ``heavy'' are one grade in this paper.
+
+The five steps used by both annotators, including the later double labeling of real screens, are: if the glass is not in the frame, drop the image; if any site is exposed, cracked, penetrated, peeled, or bent, assign severe; otherwise if the longest scratch reaches $0.2S$ or the area reaches five percent, assign severe; otherwise if a mark remains, assign minor; otherwise assign none, treating fingerprints and water marks as in the wipeable case.
+
+SSGD types are not grades. They are mapped as follows, and the image counts are the counts after this map, not a model score. Crack, broken, light-leakage, and broken-membrane are severe. A scratch box whose long side is under 200 pixels is minor; a scratch box at or above 200 pixels is severe. A spot or blot whose box covers under five percent of the image is minor; at or above five percent it is severe. Blot has no flag for ``can be wiped off,'' so no blot box is rewritten as none. The clean-screen row has zero images: the seven types do not include it. After taking the worst box on each image, 395 images are minor and 1352 are severe. A further 757 images have none of the seven boxes. They are not renamed none. They are listed apart at the split and are not merged into the none grade. The none grade on real screens is collected later, under the same five steps.
+
 \subsection{Whole-image classifier and ordinal loss}
+Still empty. No accuracy is reported here.
+
 \subsection{Locate then grade}
+Still empty.
 
 \section{Experiments}
 \subsection{Data and split}
+The split, the seed check, and the training log are not in this draft.
+
 \subsection{Metrics and implementation}
 \subsection{Main comparison}
 \subsection{Locate-then-grade}
@@ -35,6 +76,38 @@ Subsections still empty: surface defects, ordinal classification, condition asse
 \subsection{Failure cases and real photos}
 
 \section{Conclusion}
-Limitations wait for the frozen tables: reflection, cross-product shift, annotation subjectivity, and the gap between public labels and real condition grades.
+Limitations wait for the frozen tables: reflection, shift from phone glass to tablet glass, annotation subjectivity, and the gap between the SSGD type map and real screen grades. The public set has no clean-screen grade.
+
+\begin{thebibliography}{9}
+\bibitem{han2023ssgd}
+Haonan Han, Rui Yang, Shuyan Li, Runze Hu, and Xiu Li.
+SSGD: A smartphone screen glass dataset for defect detection.
+In \emph{ICASSP}, 2023. arXiv:2303.06673.
+
+\bibitem{zhang2022fdsnet}
+Jian Zhang, Runwei Ding, Miaoju Ban, and Tianyu Guo.
+FDSNeT: An accurate real-time surface defect segmentation network.
+In \emph{ICASSP}, pages 3803--3807, 2022.
+
+\bibitem{mohandas2025grading}
+Reenu Mohandas, Mark Southern, Colin Fitzpatrick, and Martin Hayes.
+Deep learning enabled computer vision in remanufacturing and refurbishment applications: defect detection and grading for smart phones.
+\emph{Journal of Remanufacturing}, 15:65--95, 2025.
+
+\bibitem{bergmann2019mvtec}
+Paul Bergmann, Michael Fauser, David Sattlegger, and Carsten Steger.
+MVTec AD --- A comprehensive real-world dataset for unsupervised anomaly detection.
+In \emph{CVPR}, pages 9592--9600, 2019.
+
+\bibitem{song2013neu}
+Kechen Song and Yunhui Yan.
+A noise robust method based on completed local binary patterns for hot-rolled steel strip surface defects.
+\emph{Applied Surface Science}, 285:858--864, 2013.
+
+\bibitem{tabernik2020segmentation}
+Domen Tabernik, Samo \v{S}ela, Jure Skvar\v{c}, and Danijel Sko\v{c}aj.
+Segmentation-based deep-learning approach for surface-defect detection.
+\emph{Journal of Intelligent Manufacturing}, 31:759--776, 2020.
+\end{thebibliography}
 
 \end{document}
