@@ -1,0 +1,5 @@
+setting,seed,split_seed,epochs,lr,class_weight,test_acc,macro_f1,f1_light,f1_severe,support_light,support_severe,mae,off_by_one,off_by_two,n_train,n_val,n_test
+majority,,42,0,,no,0.7719,0.4356,0.0000,0.8712,60,203,0.2281,0.2281,0.0000,1222,262,263
+resnet18-finetune,1,42,8,0.0001,no,0.7795,0.6244,0.3830,0.8657,60,203,0.2205,0.2205,0.0000,1222,262,263
+resnet18-finetune,2,42,8,0.0001,no,0.7605,0.6538,0.4615,0.8460,60,203,0.2395,0.2395,0.0000,1222,262,263
+resnet18-class-weight,1,42,8,0.0001,yes,0.7795,0.6940,0.5323,0.8557,60,203,0.2205,0.2205,0.0000,1222,262,263
