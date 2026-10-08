@@ -1,0 +1,7 @@
+setting,group,n,acc,macro_f1,f1_light,f1_severe
+whole-seed1,large,70,0.9857,0.9928,0.0000,0.9928
+whole-seed1,small,193,0.6943,0.5623,0.3218,0.8027
+locate-crop,large,70,1.0000,1.0000,0.0000,1.0000
+locate-crop,small,193,0.6736,0.4025,0.0000,0.8050
+locate-mask,large,70,0.9857,0.9928,0.0000,0.9928
+locate-mask,small,193,0.6995,0.5979,0.3958,0.8000
