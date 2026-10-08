@@ -104,7 +104,7 @@
 - 光：`normal` 或 `glare`。反光指换个角度会消失的亮线。
 - 背景：`clean` 或 `clutter`。杂乱指屏幕外面有桌面纹理、线缆或其他物件。
 
-数量：至少 90 张，无、轻、中重每档至少 30 张。「无」只能从这里来。文件名例：`none_normal_clean_001.jpg`、`minor_glare_clutter_014.jpg`、`severe_normal_clean_003.jpg`。
+数量：至少 90 张，无、轻、中重每档至少 30 张。「无」只能从这里来。收齐截止是 **2026-10-14** 结束前；10-15 才双标和打分。文件名例：`none_normal_clean_001.jpg`、`minor_glare_clutter_014.jpg`、`severe_normal_clean_003.jpg`。
 
 档仍用第 4 节的五步，不另写口头标准。第二个人在互盲的前提下，为每档另标 10 张，合计至少 30 张。两份标签分开存，算出一致率和 Cohen's kappa 之后才允许对照。
 
