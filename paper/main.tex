@@ -2,13 +2,13 @@
 
 \title{Screen Damage Severity Estimation for Phones and Tablets}
 \author{cv-research-lab}
-\date{2026-09-28}
+\date{2026-10-08}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Draft of 28 September 2026. The abstract will later state the three-level definition, the comparison result, and where the model fails. This file does not contain measured accuracy, F1, or ordinal error.
+Draft of 8 October 2026. The abstract will later state the three-level definition, the comparison result, and where the model fails. Measured rows that already exist are quoted only in the experiment section, and they are not yet the frozen table.
 \end{abstract}
 
 \noindent\textbf{Keywords:} screen damage, ordinal classification, visual inspection, smartphone
@@ -40,10 +40,18 @@ The wider surface-inspection literature shows the same gap in a different materi
 What is missing, and what the comparison table has to supply, is a single public screen set, one split, and one ordered label, with a majority-class baseline beside the trained grades. Detector mean average precision on SSGD does not fill that cell.
 
 \subsection{Ordinal classification}
-Still empty.
+Cross-entropy treats none, minor, and severe as three unrelated names. The loss for calling minor ``none'' is the same as the loss for calling minor ``severe.'' The grades in this paper are ordered, so that equality is the wrong training signal.
+
+Frank and Hall turn one ordinal problem into several binary problems by asking, for each threshold, whether the true grade is above it \cite{frank2001ordinal}. Niu et al.\ put those binary questions on one convolutional network for age estimation: the trunk is shared, but each binary head has its own weights, so the heads can contradict one another \cite{niu2016ordinal}. Cao et al.\ keep the same questions and tie the heads to one shared weight vector, with a separate bias per threshold \cite{cao2020coral}. A higher threshold then cannot fire while a lower threshold stays off. Their measured error is on age estimation, not on screen glass. Beckham and Pal instead force the whole probability vector to have a single peak, using a binomial or Poisson distribution, and test that constraint on face-age and retinal images \cite{beckham2017unimodal}. Diaz and Marathe soften the one-hot target so that neighboring grades share some of the probability mass \cite{diaz2019soft}.
+
+The comparison planned here uses the shared-weight form of Cao et al.\ on the same backbone and the same split as the cross-entropy row. That row has not been trained. None of the age or retinal numbers above is a result of this paper.
 
 \subsection{Condition assessment}
-Still empty.
+A condition grade is a judgment of the whole object, not a name for one mark.
+
+Mohandas et al.\ detect scratches and cracks and then apply a written table: any hairline or major crack forces grade D, a deeper scratch forces C, and only the count of light scratches separates A from B \cite{mohandas2025grading}. The rule shares our ``worst site wins'' step. It uses four private severity classes and 246 images, and it is not the three grades defined here. CTIA's wireless-device grading specification writes cosmetic grades for secondary-market phones and says how an inspector should look: arm's length, one pass, factory lighting, with the display tilted to catch cracks \cite{ctia2026grading}. That document is a grading standard, not a learned model, and it covers the whole device rather than the front glass alone.
+
+Learned inspection usually stops earlier. Weimer et al.\ study convolutional features for industrial defect classification \cite{weimer2016inspection}. Zhang et al.\ and Han et al.\ output a mask or a box and a defect type on phone glass \cite{zhang2022fdsnet,han2023ssgd}. Mittal et al.\ score whether a photograph is distorted \cite{mittal2012brisque}. Murray et al.\ score whether a photograph is aesthetically pleasing \cite{murray2012ava}. None of those outputs is an ordered damage grade of the glass. The real-photo section of this paper has to say how far a grade trained on public defect types falls when the pictures are handheld screens, including screens with no damage.
 
 \section{Method}
 \subsection{Label definition}
@@ -60,20 +68,69 @@ The five steps used by both annotators, including the later double labeling of r
 SSGD types are not grades. They are mapped as follows, and the image counts are the counts after this map, not a model score. Crack, broken, light-leakage, and broken-membrane are severe. A scratch box whose long side is under 200 pixels is minor; a scratch box at or above 200 pixels is severe. A spot or blot whose box covers under five percent of the image is minor; at or above five percent it is severe. Blot has no flag for ``can be wiped off,'' so no blot box is rewritten as none. The clean-screen row has zero images: the seven types do not include it. After taking the worst box on each image, 395 images are minor and 1352 are severe. A further 757 images have none of the seven boxes. They are not renamed none. They are listed apart at the split and are not merged into the none grade. The none grade on real screens is collected later, under the same five steps.
 
 \subsection{Whole-image classifier and ordinal loss}
-Still empty. No accuracy is reported here.
+The whole-image branch never reads the boxes. Each image is resized to $224\times 224$. Training uses a horizontal flip. Pixels are then normalized with the ImageNet mean $(0.485, 0.456, 0.406)$ and standard deviation $(0.229, 0.224, 0.225)$.
+
+The backbone is an ImageNet-pretrained ResNet-18. Its 1000-way head is replaced. On the public split the replacement has two outputs, minor and severe, because the mapped SSGD images contain no ``none'' example. The new head is the only randomly initialized layer. The rest starts from the public checkpoint. Optimization is AdamW with learning rate $10^{-4}$, weight decay $10^{-4}$, batch size 32, and 8 epochs. The reported test score is the eighth epoch, not the best validation epoch. The split seed is 42. Training seeds 1 and 2 change the new head's initialization and the order of training images. They do not change which images are in the test set. A third run repeats seed 1 with class-balanced cross-entropy weights. Those three runs are done. Their test numbers are in the experiment section and are not repeated here.
+
+The ordinal run uses the same backbone, the same split, and the same budget, and replaces only the loss. With three protocol grades there are two threshold questions: ``above none?'' and ``above minor?'' The targets are $(0,0)$ for none, $(1,0)$ for minor, and $(1,1)$ for severe. Both questions share one weight vector and keep separate biases, as in Cao et al. The predicted grade index is one plus the number of positive answers, which is none, minor, or severe. On the current public split every training label is already above none, so the first question has no negative example until real undamaged screens are added. The public ordinal comparison is therefore the second threshold, ``above minor?,'' trained against minor versus severe. This run has not been started. Ordinal error on either loss is the mean absolute difference of the protocol codes (none $=0$, minor $=1$, severe $=2$), plus the fraction of test images that miss by one code and the fraction that miss by two.
 
 \subsection{Locate then grade}
-Still empty.
+This branch has not been trained. The outline, which the later run has to follow, is as follows.
+
+A detector is trained on the SSGD boxes and the seven type names. It is not trained on the three grades. On a validation image we keep a box only to ask whether it covers the visible mark; ten such overlays are saved, and detection reports mAP at IoU 0.5. The grade itself is still produced by a whole-image classifier that was already selected on the 263-image test split. Two inputs to that classifier are scored separately: the image cropped to the union of the kept boxes and resized to $224\times 224$, and the same image with everything outside those boxes painted out. If the detector returns no box, the crop is the full frame and the masked image is empty; that case is counted, not dropped. The test metrics are the same grade metrics as the whole-image row. A second table splits the test images by the area of the mapped ground-truth boxes into small and large, using the five-percent rule already fixed in the label section, and reports the grade metrics in each group. A gain that appears only on the large group stays in the table.
 
 \section{Experiments}
 \subsection{Data and split}
-The split, the seed check, and the training log are not in this draft.
+Only images with at least one of the seven SSGD boxes enter the split. The image grade is the worst box under the label section. That leaves 395 minor and 1352 severe images, 1747 in total. The 757 images with no such box are excluded and are not called none. Seed 42 draws a stratified 70/15/15 split. The same draw was repeated and matched before it was saved. Training, validation, and test contain 1222, 262, and 263 images. The test counts are 60 minor and 203 severe.
 
 \subsection{Metrics and implementation}
+The finished runs use the ResNet-18 settings in the method section, on one NVIDIA GeForce RTX 4060 Laptop GPU, PyTorch 2.6.0 with CUDA 12.4. Accuracy, macro-F1, and per-grade F1 use the two grades present in this split. Ordinal codes are minor $=1$ and severe $=2$. With only those two grades, every mistake has absolute error 1, so the off-by-two rate is 0 and the mean absolute error equals the off-by-one rate.
+
 \subsection{Main comparison}
+Table~\ref{tab:m1} is the week-0 slice. It is not the frozen comparison. The majority row predicts severe for every test image. The two fine-tuning seeds average 0.7700 accuracy, below the majority accuracy 0.7719. Class-balanced weights leave seed-1 accuracy at 0.7795 and raise the minor F1 from 0.3830 to 0.5323. Of 60 minor test images, seed 1 calls 42 of them severe. Linear probing, the ordinal loss, the third whole-image control, and locate-then-grade are not in this table yet.
+
+\begin{table}[ht]
+\centering
+\caption{Public test split, seed 42, 263 images. Not frozen.}
+\label{tab:m1}
+\small
+\begin{tabular}{lccc}
+\hline
+Setting & Accuracy & macro-F1 & minor F1 \\
+\hline
+Majority (always severe) & 0.7719 & 0.4356 & 0.0000 \\
+ResNet-18, seed 1 & 0.7795 & 0.6244 & 0.3830 \\
+ResNet-18, seed 2 & 0.7605 & 0.6538 & 0.4615 \\
+Seed 1, class-balanced loss & 0.7795 & 0.6940 & 0.5323 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\begin{tabular}{|c|}
+\hline
+phone or tablet screen image \\
+\hline
+\end{tabular}
+\hfill
+\begin{tabular}{c c c}
+\fbox{whole image $\rightarrow 224$} & & \fbox{detect marks} \\
+$\downarrow$ & & $\downarrow$ \\
+\fbox{grade: none / minor / severe} & & \fbox{crop or mask, then the same grader} \\
+\end{tabular}
+\caption{Draft of the two branches. Both emit one grade. The right branch is not trained.}
+\label{fig:pipeline}
+\end{figure}
+
 \subsection{Locate-then-grade}
+Not run.
+
 \subsection{Ablation and ordinal error}
+The ordinal-loss switch and the strong-augmentation switch are not run. On the finished two-grade test, off-by-two is 0 for every row in Table~\ref{tab:m1}. Mean absolute error equals the error rate: 0.2281, 0.2205, 0.2395, and 0.2205 in the order of that table.
+
 \subsection{Failure cases and real photos}
+The failure inventory and the 90 real screens are not collected. The capture rule is fixed in the label protocol so that both annotators use the same five steps, the same lighting tags, and the same file names.
 
 \section{Conclusion}
 Limitations wait for the frozen tables: reflection, shift from phone glass to tablet glass, annotation subjectivity, and the gap between the SSGD type map and real screen grades. The public set has no clean-screen grade.
@@ -108,6 +165,51 @@ A noise robust method based on completed local binary patterns for hot-rolled st
 Domen Tabernik, Samo \v{S}ela, Jure Skvar\v{c}, and Danijel Sko\v{c}aj.
 Segmentation-based deep-learning approach for surface-defect detection.
 \emph{Journal of Intelligent Manufacturing}, 31:759--776, 2020.
+
+\bibitem{frank2001ordinal}
+Eibe Frank and Mark Hall.
+A simple approach to ordinal classification.
+In \emph{ECML}, pages 145--156, 2001.
+
+\bibitem{niu2016ordinal}
+Zhenxing Niu, Mo Zhou, Le Wang, Xinbo Gao, and Gang Hua.
+Ordinal regression with multiple output CNN for age estimation.
+In \emph{CVPR}, pages 4920--4928, 2016.
+
+\bibitem{cao2020coral}
+Wenzhi Cao, Vahid Mirjalili, and Sebastian Raschka.
+Rank consistent ordinal regression for neural networks with application to age estimation.
+\emph{Pattern Recognition Letters}, 140:325--331, 2020.
+
+\bibitem{beckham2017unimodal}
+Christopher Beckham and Christopher Pal.
+Unimodal probability distributions for deep ordinal classification.
+In \emph{ICML}, PMLR 70, pages 411--419, 2017.
+
+\bibitem{diaz2019soft}
+Raul Diaz and Amit Marathe.
+Soft labels for ordinal regression.
+In \emph{CVPR}, pages 4738--4747, 2019.
+
+\bibitem{ctia2026grading}
+CTIA Certification.
+Wireless device grading scales criteria and definitions.
+Version 5.1, June 2026.
+
+\bibitem{weimer2016inspection}
+Daniel Weimer, Bernd Scholz-Reiter, and Moshe Shpitalni.
+Design of deep convolutional neural network architectures for automated feature extraction in industrial inspection.
+\emph{CIRP Annals}, 65(1):417--420, 2016.
+
+\bibitem{mittal2012brisque}
+Anish Mittal, Anush Krishna Moorthy, and Alan Conrad Bovik.
+No-reference image quality assessment in the spatial domain.
+\emph{IEEE Transactions on Image Processing}, 21(12):4695--4708, 2012.
+
+\bibitem{murray2012ava}
+Naila Murray, Luca Marchesotti, and Florent Perronnin.
+AVA: A large-scale database for aesthetic visual analysis.
+In \emph{CVPR}, pages 2408--2415, 2012.
 \end{thebibliography}
 
 \end{document}
