@@ -19,5 +19,6 @@ experiments/       实验记录（硬件、命令、指标）
 results/           数字与表
 src/               训练/评测代码
 data/              数据集（不进 git）
+notes/computer-vision.md  学科背景：从起源到 2026 前沿
 notes/papers/      读论文笔记
 ```
