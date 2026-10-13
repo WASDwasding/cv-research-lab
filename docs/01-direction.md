@@ -74,17 +74,17 @@
 
 | 顺序 | 数据集 | 用途 |
 |------|--------|------|
-| 今天就下 | **SSGD**（Han et al., ICASSP 2023） | 主实验。2504 张手机屏幕玻璃，7 类缺陷，有框。学术使用。仓库 https://github.com/VincentHancoder/SSGD/ ，压缩包在该页的 Baidu 与清华云链接。放到 4060 的 `data/raw/ssgd/` |
+| 主实验 | **SSGD**（Han et al., ICASSP 2023） | 主实验。2504 张手机屏幕玻璃，7 类缺陷，有框。学术使用。仓库 https://github.com/VincentHancoder/SSGD/ ，压缩包在该页的 Baidu 与清华云链接。放到 4060 的 `data/raw/ssgd/` |
 | 仅当前面两个链接都下不下来 | **MSD**（Zhang et al., ICASSP 2022） | 备选。1200 张屏幕表面缺陷掩膜（oil / scratch / stain）加 20 张完好图。https://github.com/jianzhang96/MSD |
 
-SSGD 没有完好屏幕。映射表里「无」这一档写 0 张，不把污迹改叫无。完好屏幕留到 10 月 7 日的真实拍摄。
+SSGD 没有完好屏幕。映射表里「无」这一档写 0 张，不把污迹改叫无。完好屏幕留到真实拍摄。真实拍摄已推迟，下次启动时间待定。
 
 先读的两篇论文：
 
 1. 缺陷检测：Han, Yang, Li, Hu, Li. *SSGD: A smartphone screen glass dataset for defect detection.* ICASSP 2023. arXiv:2303.06673。  
-2. 有序分类：Cao, Mirjalili, Raschka. *Rank consistent ordinal regression for neural networks with application to age estimation.* Pattern Recognition Letters, 2020（CORAL）。第 9 天的有序损失按这篇做。
+2. 有序分类：Cao, Mirjalili, Raschka. *Rank consistent ordinal regression for neural networks with application to age estimation.* Pattern Recognition Letters, 2020（CORAL）。有序损失按这篇做。
 
-第 3 天再读成色分级：Mohandas, Southern, Fitzpatrick, Hayes. *Deep learning enabled computer vision in remanufacturing and refurbishment applications: defect detection and grading for smart phones.* Journal of Remanufacturing, 2025. DOI:10.1007/s13243-024-00147-2。他们自建的严重度数据不作为本次下载。
+成色分级：Mohandas, Southern, Fitzpatrick, Hayes. *Deep learning enabled computer vision in remanufacturing and refurbishment applications: defect detection and grading for smart phones.* Journal of Remanufacturing, 2025. DOI:10.1007/s13243-024-00147-2。他们自建的严重度数据不作为本次下载。
 
 ---
 

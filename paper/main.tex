@@ -1,14 +1,14 @@
 \documentclass[10pt]{article}
 
 \title{Screen Damage Severity Estimation for Phones and Tablets}
-\author{cv-research-lab}
-\date{2026-10-08}
+\author{cv-research-lab-01}
+\date{}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Draft of 8 October 2026. The abstract will later state the three-level definition, the comparison result, and where the model fails. Measured rows that already exist are quoted only in the experiment section, and they are not yet the frozen table.
+Draft. The experiment is postponed and has no start date. The abstract will later state the three-level definition, the comparison result, and where the model fails. Measured rows that already exist are quoted only in the experiment section, and they are not yet the frozen table.
 \end{abstract}
 
 \noindent\textbf{Keywords:} screen damage, ordinal classification, visual inspection, smartphone
@@ -87,7 +87,7 @@ Only images with at least one of the seven SSGD boxes enter the split. The image
 The finished runs use the ResNet-18 settings in the method section, on one NVIDIA GeForce RTX 4060 Laptop GPU, PyTorch 2.6.0 with CUDA 12.4. Accuracy, macro-F1, and per-grade F1 use the two grades present in this split. Ordinal codes are minor $=1$ and severe $=2$. With only those two grades, every mistake has absolute error 1, so the off-by-two rate is 0 and the mean absolute error equals the off-by-one rate.
 
 \subsection{Main comparison}
-Table~\ref{tab:m1} is the week-0 slice. It is not the frozen comparison. The majority row predicts severe for every test image. The two fine-tuning seeds average 0.7700 accuracy, below the majority accuracy 0.7719. Class-balanced weights leave seed-1 accuracy at 0.7795 and raise the minor F1 from 0.3830 to 0.5323. Of 60 minor test images, seed 1 calls 42 of them severe. Linear probing, the ordinal loss, the third whole-image control, and locate-then-grade are not in this table yet.
+Table~\ref{tab:m1} is the first public-split comparison. It is not the frozen comparison. The majority row predicts severe for every test image. The two fine-tuning seeds average 0.7700 accuracy, below the majority accuracy 0.7719. Class-balanced weights leave seed-1 accuracy at 0.7795 and raise the minor F1 from 0.3830 to 0.5323. Of 60 minor test images, seed 1 calls 42 of them severe. Linear probing, the ordinal loss, the third whole-image control, and locate-then-grade are not in this table yet.
 
 \begin{table}[ht]
 \centering

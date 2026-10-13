@@ -1,4 +1,4 @@
-"""把第 1 天的论文壳打成 PDF。不依赖 LaTeX，也不裁剪整包字体。
+"""把论文壳打成 PDF。不依赖 LaTeX，也不裁剪整包字体。
 
 用法（在仓库根目录）:
     python paper/build_shell.py
@@ -19,10 +19,10 @@ MARGIN = 80
 
 BLOCKS = [
     ("title", "Screen Damage Severity Estimation for Phones and Tablets"),
-    ("meta", "论文壳  2026-09-22  第 1 天  cv-research-lab"),
+    ("meta", "论文壳  cv-research-lab-01"),
     ("body", "Keywords: damage severity, ordinal classification, visual inspection"),
     ("head", "摘要 / Abstract"),
-    ("body", "第 1 天只建壳。摘要以后写三档定义、对照结果、以及模型在哪里失效。本页不填任何实验数字。"),
+    ("body", "这一页只建壳。摘要以后写三档定义、对照结果、以及模型在哪里失效。本页不填任何实验数字。"),
     ("head", "1 引言 / Introduction"),
     ("body", "任务：已知是手机或平板屏幕，给一张屏幕图一个有序档次：无 / 轻 / 中重。不评后盖和边框。三条贡献主张："),
     ("body", "1. 分级定义。无 / 轻 / 中重有书面可见特征和边界例，见 experiments/label_protocol.md。"),
